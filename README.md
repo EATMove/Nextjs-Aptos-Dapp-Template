@@ -33,7 +33,7 @@ npm install
 
 ### 2. 环境配置
 
-项目已经为您创建了 `.env` 文件，您可以根据需要进行调整：
+您需要自己创建 `.env` 文件，可以根据需要进行调整：
 
 ```env
 # 网络配置 (devnet/testnet/mainnet)
