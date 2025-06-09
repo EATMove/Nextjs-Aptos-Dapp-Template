@@ -15,7 +15,7 @@
 
 可以直接用npx模板生成器
 ```bash
-npx create-nextjs-aptos-dapp-template@1.1.3
+npx create-nextjs-aptos-dapp-template@1.2.3
 ```
 ### 1. 安装依赖
 
@@ -33,13 +33,18 @@ npm install
 
 ### 2. 环境配置
 
-您需要自己创建 `.env` 文件，可以根据需要进行调整：
+请注意`.env` 文件，可以根据需要进行调整：
 
 ```env
 # 网络配置 (devnet/testnet/mainnet)
 NEXT_PUBLIC_NETWORK=devnet
 NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.devnet.aptoslabs.com/v1
 NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.devnet.aptoslabs.com
+
+# Movement 网络配置 (devnet/testnet/mainnet)
+# NEXT_PUBLIC_NETWORK=testnet
+# NEXT_PUBLIC_APTOS_NODE_URL=https://aptos.testnet.porto.movementlabs.xyz/v1
+# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
 
 # 合约地址 (部署后填入)
 NEXT_PUBLIC_DEVNET_PACKAGE_ID=""

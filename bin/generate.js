@@ -88,12 +88,18 @@ async function generateProject() {
         break;
     }
 
-    const envContent = `NEXT_PUBLIC_NETWORK=${answers.network}
+    const envContent = `# Aptos Network Configuration
+NEXT_PUBLIC_NETWORK=${answers.network}
 NEXT_PUBLIC_APTOS_NODE_URL=${nodeUrl}
 NEXT_PUBLIC_APTOS_FAUCET_URL=${faucetUrl}
 
+# Movement Network Configuration (devnet/testnet/mainnet)
+# NEXT_PUBLIC_NETWORK=testnet
+# NEXT_PUBLIC_APTOS_NODE_URL=https://aptos.testnet.porto.movementlabs.xyz/v1
+# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
+
 # Contract addresses (update these with your deployed contract addresses)
-NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
+NEXT_PUBLIC_DEVNET_PACKAGE_ID="0xc98f4f570fab235677c1b9324f88f9268c1641f614e0095987f5b6ce0487c3ee"
 NEXT_PUBLIC_TESTNET_PACKAGE_ID=""
 NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
 `;
