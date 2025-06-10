@@ -143,6 +143,16 @@ NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
       console.log(chalk.green('✅ Updated README.md'));
     }
 
+    // Update README.en.md
+    console.log(chalk.yellow('📖 Updating README.en.md...'));
+    const readmeEnPath = path.join(targetDir, 'README.en.md');
+    if (await fs.pathExists(readmeEnPath)) {
+      let readmeEnContent = await fs.readFile(readmeEnPath, 'utf8');
+      readmeEnContent = readmeEnContent.replace(/{{PROJECT_NAME}}/g, answers.projectName);
+      await fs.writeFile(readmeEnPath, readmeEnContent);
+      console.log(chalk.green('✅ Updated README.en.md'));
+    }
+
     // Success message
     console.log(chalk.green(`\n🎉 Project ${answers.projectName} has been created successfully!`));
     console.log(chalk.blue('\n📋 Next steps:'));
