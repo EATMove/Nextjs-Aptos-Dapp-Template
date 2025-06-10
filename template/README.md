@@ -1,5 +1,7 @@
 # {{PROJECT_NAME}}
 
+[English](./README.en.md) | 中文
+
 一个基于 Next.js 和 Aptos SDK 构建的现代化 dApp 模板。
 
 ## 技术栈
