@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [closed]
     branches: [main, master]
+    paths:
+      - 'template/**'
+      - 'bin/**'
+      - 'package.json'
+      - 'README.md'
   workflow_dispatch:
     inputs:
       version_type:
@@ -43,7 +48,25 @@ jobs:
       - name: 🔍 Run publish checks
         run: npm run publish-check
 
-      - name: 📈 Determine version bump
+      - name: � Check if template files changed
+        id: check-changes
+        run: |
+          # Get list of changed files in the PR
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check if any important files changed
+          if echo "$CHANGED_FILES" | grep -E "(^template/|^bin/|^package\.json$|^README\.md$)"; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "✅ Template or core files changed - will publish"
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Only documentation or CI files changed - skipping publish"
+          fi
+
+      - name: �📈 Determine version bump
+        if: steps.check-changes.outputs.should_publish == 'true'
         id: version
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
