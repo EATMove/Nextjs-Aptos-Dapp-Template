@@ -15,7 +15,7 @@
 
 可以直接用npx模板生成器
 ```bash
-npx create-nextjs-aptos-dapp-template@1.2.3
+npx create-nextjs-aptos-dapp-template
 ```
 ### 1. 安装依赖
 
@@ -81,7 +81,7 @@ npm run dev
 ## 项目结构
 
 ```
-{{PROJECT_NAME}}/
+{YOUR_PROJECT_NAME}/
 ├── app/                   # Next.js App Router
 │   ├── layout.tsx         # 应用布局
 │   ├── page.tsx           # 主页面
@@ -167,6 +167,19 @@ const configs = {
 2. **前端集成**: 使用 `createBetterTxFactory` 创建类型安全的交易函数
 3. **状态管理**: 利用 React Query 进行链上数据的缓存和同步
 4. **钱包集成**: 项目已集成 Petra 钱包，可根据需要添加其他钱包
+
+## PR 合并自动发布
+- 当 PR 合并到 main 分支时，自动发布到 NPM
+- 根据提交信息自动确定版本号
+- 自动创建 GitHub Release
+
+## 🤝 贡献
+
+1. Fork 这个仓库
+2. 提交你的更改
+3. 创建 Pull Request
+4. 等待自动测试和审核
+5. 合并后自动发布
 
 ## 相关资源
 

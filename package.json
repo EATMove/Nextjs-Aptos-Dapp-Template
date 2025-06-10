@@ -27,7 +27,8 @@
   "scripts": {
     "test": "node bin/generate.js --help || echo 'Generator script exists'",
     "test-local": "node bin/generate.js",
-    "prepublish": "node scripts/publish-check.js"
+    "prepublish": "node scripts/publish-check.js",
+    "publish-check": "node scripts/publish-check.js"
   },
   "keywords": [
     "nextjs",

@@ -9,6 +9,33 @@ import chalk from 'chalk';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Check for help flag
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(chalk.blue('🚀 Next.js Aptos dApp Template Generator'));
+  console.log(chalk.gray('Creates a modern Aptos dApp with Next.js\n'));
+  console.log(chalk.cyan('Usage:'));
+  console.log('  npx create-nextjs-aptos-dapp-template');
+  console.log('  create-nextjs-aptos-dapp-template\n');
+  console.log(chalk.cyan('Options:'));
+  console.log('  --help, -h    Show this help message');
+  console.log('  --version     Show version number\n');
+  console.log(chalk.cyan('Example:'));
+  console.log('  npx create-nextjs-aptos-dapp-template');
+  process.exit(0);
+}
+
+// Check for version flag
+if (process.argv.includes('--version')) {
+  (async () => {
+    const packageJson = await fs.readJson(path.join(__dirname, '..', 'package.json'));
+    console.log(packageJson.version);
+    process.exit(0);
+  })();
+} else {
+  // Only run the generator if not showing help or version
+  generateProject();
+}
+
 async function generateProject() {
   console.log(chalk.blue('🚀 Welcome to Nextjs Aptos dApp Template Generator!'));
   console.log(chalk.gray('This tool will help you create a modern Aptos dApp with Next.js\n'));
@@ -131,5 +158,3 @@ NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
     process.exit(1);
   }
 }
-
-generateProject();
