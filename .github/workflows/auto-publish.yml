@@ -22,9 +22,7 @@ on:
           - major
 
 permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+  contents: write
 
 jobs:
   publish:
@@ -106,17 +104,22 @@ jobs:
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
 
+      - name: 🔑 Authenticate with npm
+        if: steps.check-changes.outputs.should_publish == 'true'
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
       - name: 🚀 Publish to NPM
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: steps.check-changes.outputs.should_publish == 'true'
+        run: npm publish --access public
 
       - name: 📤 Push version bump
+        if: steps.check-changes.outputs.should_publish == 'true'
         run: |
           git push origin HEAD:${{ github.ref_name }}
           git push origin "v${{ steps.bump.outputs.new_version }}"
 
       - name: 📝 Create GitHub Release
+        if: steps.check-changes.outputs.should_publish == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -140,28 +143,18 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: 💬 Comment on PR
-        if: github.event.pull_request.number
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: ${{ github.event.pull_request.number }},
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🎉 **Auto-published to NPM!**
-              
-              📦 **Package**: \`create-nextjs-aptos-dapp-template\`
-              🏷️ **Version**: \`v${{ steps.bump.outputs.new_version }}\`
-              📈 **Bump Type**: \`${{ steps.version.outputs.version_type }}\`
-              
-              ### 🚀 Try it now:
-              \`\`\`bash
-              npx create-nextjs-aptos-dapp-template
-              \`\`\`
-              
-              ### 📋 Release Notes:
-              - [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.bump.outputs.new_version }})
-              - [NPM Package](https://www.npmjs.com/package/create-nextjs-aptos-dapp-template)
-              `
-            })
+      - name: 🎉 Display publish success
+        if: github.event.pull_request.number && steps.check-changes.outputs.should_publish == 'true'
+        run: |
+          echo "🎉 **Auto-published to NPM!**"
+          echo ""
+          echo "📦 **Package**: create-nextjs-aptos-dapp-template"
+          echo "🏷️ **Version**: v${{ steps.bump.outputs.new_version }}"
+          echo "📈 **Bump Type**: ${{ steps.version.outputs.version_type }}"
+          echo ""
+          echo "### 🚀 Try it now:"
+          echo "npx create-nextjs-aptos-dapp-template"
+          echo ""
+          echo "### 📋 Release Notes:"
+          echo "- GitHub Release: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.bump.outputs.new_version }}"
+          echo "- NPM Package: https://www.npmjs.com/package/create-nextjs-aptos-dapp-template"

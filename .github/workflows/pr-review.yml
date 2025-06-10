@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
-  issues: write
 
 jobs:
   test:
@@ -96,57 +94,22 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
 
-      - name: 💬 Comment version preview
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
-              comment.body.includes('📦 Version Preview')
-            );
-            
-            const commentBody = `## 📦 Version Preview
-            
-            🏷️ **Current Version**: \`v${{ steps.preview.outputs.current_version }}\`
-            🚀 **Next Version**: \`v${{ steps.preview.outputs.new_version }}\`
-            📈 **Bump Type**: \`${{ steps.preview.outputs.version_type }}\`
-            
-            ### 🔍 What will happen when this PR is merged:
-            1. ✅ Tests will run
-            2. 📈 Version will be bumped to \`v${{ steps.preview.outputs.new_version }}\`
-            3. 📦 Package will be published to NPM
-            4. 🏷️ GitHub release will be created
-            5. 💬 Success comment will be posted
-            
-            ### 🚀 Users will be able to use:
-            \`\`\`bash
-            npx create-nextjs-aptos-dapp-template
-            \`\`\`
-            
-            ---
-            *This preview is automatically updated when you push new commits.*`;
-            
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: commentBody
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: commentBody
-              });
-            }
+      - name: 📋 Display version preview
+        run: |
+          echo "## 📦 Version Preview"
+          echo ""
+          echo "🏷️ **Current Version**: v${{ steps.preview.outputs.current_version }}"
+          echo "🚀 **Next Version**: v${{ steps.preview.outputs.new_version }}"
+          echo "📈 **Bump Type**: ${{ steps.preview.outputs.version_type }}"
+          echo ""
+          echo "### 🔍 What will happen when this PR is merged:"
+          echo "1. ✅ Tests will run"
+          echo "2. 📈 Version will be bumped to v${{ steps.preview.outputs.new_version }}"
+          echo "3. 📦 Package will be published to NPM"
+          echo "4. 🏷️ GitHub release will be created"
+          echo ""
+          echo "### 🚀 Users will be able to use:"
+          echo "npx create-nextjs-aptos-dapp-template"
 
   security-check:
     runs-on: ubuntu-latest
@@ -184,55 +147,23 @@ jobs:
   contributor-welcome:
     runs-on: ubuntu-latest
     if: github.event.action == 'opened'
-    
+
     steps:
       - name: 🎉 Welcome new contributor
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: pullRequest } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-            
-            const { data: user } = await github.rest.users.getByUsername({
-              username: pullRequest.user.login,
-            });
-            
-            const { data: commits } = await github.rest.repos.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              author: pullRequest.user.login,
-            });
-            
-            const isFirstTimeContributor = commits.length <= 3;
-            
-            if (isFirstTimeContributor) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: `## 🎉 Welcome to the project, @${pullRequest.user.login}!
-                
-                Thank you for your contribution to the Next.js Aptos/Movement dApp template! 
-                
-                ### 📋 What happens next:
-                1. 🤖 Automated tests will run on your PR
-                2. 👀 A maintainer will review your changes
-                3. ✅ Once approved and merged, your changes will be automatically published to NPM
-                4. 🚀 Users worldwide will benefit from your contribution!
-                
-                ### 🔍 Current status:
-                - ⏳ Tests are running...
-                - 📦 Version preview will be posted shortly
-                - 🛡️ Security checks in progress
-                
-                ### 💡 Tips:
-                - Make sure your changes don't break existing functionality
-                - Add tests if you're introducing new features
-                - Update documentation if needed
-                
-                Thanks again for contributing! 🙏`
-              });
-            }
+        run: |
+          echo "## 🎉 Welcome to the project!"
+          echo ""
+          echo "Thank you for your contribution to the Next.js Aptos/Movement dApp template!"
+          echo ""
+          echo "### 📋 What happens next:"
+          echo "1. 🤖 Automated tests will run on your PR"
+          echo "2. 👀 A maintainer will review your changes"
+          echo "3. ✅ Once approved and merged, your changes will be automatically published to NPM"
+          echo "4. 🚀 Users worldwide will benefit from your contribution!"
+          echo ""
+          echo "### 🔍 Current status:"
+          echo "- ⏳ Tests are running..."
+          echo "- 📦 Version preview will be displayed in logs"
+          echo "- 🛡️ Security checks in progress"
+          echo ""
+          echo "Thanks again for contributing! 🙏"
