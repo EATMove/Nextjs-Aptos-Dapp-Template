@@ -21,6 +21,11 @@ on:
           - minor
           - major
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   publish:
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
