@@ -104,11 +104,20 @@ jobs:
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
 
+      - name: 🔑 Create .npmrc file
+        if: steps.check-changes.outputs.should_publish == 'true'
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          cat ~/.npmrc
+
+      - name: 🧪 Test npm authentication
+        if: steps.check-changes.outputs.should_publish == 'true'
+        run: npm whoami
+
       - name: 🚀 Publish to NPM
         if: steps.check-changes.outputs.should_publish == 'true'
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: 📤 Push version bump
         if: steps.check-changes.outputs.should_publish == 'true'
