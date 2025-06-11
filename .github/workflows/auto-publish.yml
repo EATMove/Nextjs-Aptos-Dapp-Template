@@ -1,4 +1,4 @@
-name: Auto Release and Publish to NPM
+name: Auto Publish to NPM
 
 on:
   pull_request:
@@ -22,23 +22,20 @@ on:
           - major
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 jobs:
-  release-and-publish:
+  publish:
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-
       - run: npm ci
 
       - name: Determine version bump
@@ -59,12 +56,9 @@ jobs:
           echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
           echo "Will bump $VERSION_TYPE version"
 
-      - name: Bump version and create tag
+      - name: Bump version
         id: bump
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
           OLD_VERSION=$(node -p "require('./package.json').version")
           npm version ${{ steps.version.outputs.version_type }} --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
@@ -72,37 +66,8 @@ jobs:
           echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-          git add package.json
-          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
-          git tag "v$NEW_VERSION"
-          git push origin HEAD:${{ github.ref_name }}
-          git push origin "v$NEW_VERSION"
+          echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
 
-      - name: Publish to NPM
-        run: npm publish --provenance --access public
+      - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.bump.outputs.new_version }}
-          release_name: Release v${{ steps.bump.outputs.new_version }}
-          body: |
-            ## Release v${{ steps.bump.outputs.new_version }}
-
-            ### Changes
-            - Auto-published from PR merge
-            - Previous version: v${{ steps.bump.outputs.old_version }}
-
-            ### Installation
-            ```bash
-            npx create-nextjs-aptos-dapp-template
-            ```
-
-            ### What's Changed
-            See the [commit history](https://github.com/${{ github.repository }}/compare/v${{ steps.bump.outputs.old_version }}...v${{ steps.bump.outputs.new_version }}) for details.
-          draft: false
-          prerelease: false

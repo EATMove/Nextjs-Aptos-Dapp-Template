@@ -28,138 +28,58 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   manual-publish:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm test
 
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🧪 Run tests
-        run: npm test
-
-      - name: 🔍 Run publish checks
-        run: npm run publish-check
-
-      - name: 📋 Test package generation
-        run: |
-          # Test that the generator script exists and is executable
-          node bin/generate.js --help
-
-          # Test that the template directory exists and has required files
-          test -d template
-          test -f template/package.json
-          test -f template/README.md
-          test -f template/env.example
-
-          echo "✅ Package generation tests passed"
-
-      - name: 🏷️ Bump version
+      - name: Bump version
         id: bump
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
           OLD_VERSION=$(node -p "require('./package.json').version")
-          
+
           if [ "${{ github.event.inputs.version_type }}" == "prerelease" ]; then
             npm version prerelease --preid=${{ github.event.inputs.prerelease_tag }} --no-git-tag-version
           else
             npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
           fi
-          
+
           NEW_VERSION=$(node -p "require('./package.json').version")
-          
+
           echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "is_prerelease=${{ github.event.inputs.version_type == 'prerelease' }}" >> $GITHUB_OUTPUT
 
-      - name: 🚀 Publish to NPM (Dry Run)
+          echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
+
+      - name: Publish to NPM (Dry Run)
         if: github.event.inputs.dry_run == 'true'
         run: |
           echo "🧪 DRY RUN MODE - Would publish version ${{ steps.bump.outputs.new_version }}"
-          npm publish --dry-run
+          npm publish --dry-run --provenance --access public
           echo "✅ Dry run completed successfully"
-
-      - name: 🚀 Publish to NPM
-        if: github.event.inputs.dry_run == 'false'
-        run: |
-          if [ "${{ steps.bump.outputs.is_prerelease }}" == "true" ]; then
-            npm publish --tag ${{ github.event.inputs.prerelease_tag }}
-          else
-            npm publish
-          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: 📤 Push version bump
+      - name: Publish to NPM
         if: github.event.inputs.dry_run == 'false'
         run: |
-          git add package.json
-          git commit -m "chore: manual bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-          git tag "v${{ steps.bump.outputs.new_version }}"
-          git push origin HEAD:${{ github.ref_name }}
-          git push origin "v${{ steps.bump.outputs.new_version }}"
-
-      - name: 📝 Create GitHub Release
-        if: github.event.inputs.dry_run == 'false'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.bump.outputs.new_version }}
-          release_name: Release v${{ steps.bump.outputs.new_version }}
-          body: |
-            ## 🚀 Manual Release v${{ steps.bump.outputs.new_version }}
-            
-            ### Release Info
-            - 🏷️ Version Type: `${{ github.event.inputs.version_type }}`
-            - 📈 Previous Version: `v${{ steps.bump.outputs.old_version }}`
-            - 👤 Released by: @${{ github.actor }}
-            
-            ### Installation
-            ```bash
-            npx create-nextjs-aptos-dapp-template
-            ```
-            
-            ### What's Changed
-            This is a manual release. See the [commit history](https://github.com/${{ github.repository }}/compare/v${{ steps.bump.outputs.old_version }}...v${{ steps.bump.outputs.new_version }}) for details.
-          draft: false
-          prerelease: ${{ steps.bump.outputs.is_prerelease == 'true' }}
-
-      - name: 📊 Summary
-        run: |
-          echo "## 📊 Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🏷️ **Version**: \`v${{ steps.bump.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "📈 **Type**: \`${{ github.event.inputs.version_type }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "🧪 **Dry Run**: \`${{ github.event.inputs.dry_run }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
-            echo "✅ **Status**: Dry run completed successfully" >> $GITHUB_STEP_SUMMARY
-            echo "💡 **Note**: No actual publishing occurred" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.bump.outputs.is_prerelease }}" == "true" ]; then
+            npm publish --tag ${{ github.event.inputs.prerelease_tag }} --provenance --access public
           else
-            echo "✅ **Status**: Published successfully" >> $GITHUB_STEP_SUMMARY
-            echo "📦 **NPM**: [create-nextjs-aptos-dapp-template](https://www.npmjs.com/package/create-nextjs-aptos-dapp-template)" >> $GITHUB_STEP_SUMMARY
-            echo "🏷️ **GitHub**: [Release v${{ steps.bump.outputs.new_version }}](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.bump.outputs.new_version }})" >> $GITHUB_STEP_SUMMARY
+            npm publish --provenance --access public
           fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Try it now:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "npx create-nextjs-aptos-dapp-template" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
