@@ -1,4 +1,4 @@
-name: Auto Publish to NPM
+name: Auto Release and Publish to NPM
 
 on:
   pull_request:
@@ -23,59 +23,31 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
-  publish:
+  release-and-publish:
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: 📦 Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: 🧪 Run tests
-        run: npm test
-
-      - name: 🔍 Run publish checks
-        run: npm run publish-check
-
-      - name: Check if template files changed
-        id: check-changes
-        run: |
-          # Get list of changed files in the PR
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          # Check if any important files changed
-          if echo "$CHANGED_FILES" | grep -E "(^template/|^bin/|^package\.json$|^README\.md$)"; then
-            echo "should_publish=true" >> $GITHUB_OUTPUT
-            echo "✅ Template or core files changed - will publish"
-          else
-            echo "should_publish=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ Only documentation or CI files changed - skipping publish"
-          fi
-
-      - name: �📈 Determine version bump
-        if: steps.check-changes.outputs.should_publish == 'true'
+      - name: Determine version bump
         id: version
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION_TYPE="${{ github.event.inputs.version_type }}"
           else
-            # Auto-determine version type based on PR labels or commit messages
+            # Auto-determine version type based on commit messages
             if git log --oneline -1 | grep -i "breaking\|major"; then
               VERSION_TYPE="major"
             elif git log --oneline -1 | grep -i "feat\|feature\|minor"; then
@@ -87,37 +59,31 @@ jobs:
           echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
           echo "Will bump $VERSION_TYPE version"
 
-      - name: 🏷️ Bump version
+      - name: Bump version and create tag
         id: bump
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           OLD_VERSION=$(node -p "require('./package.json').version")
           npm version ${{ steps.version.outputs.version_type }} --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
-          
+
           echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          
+
           git add package.json
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "v$NEW_VERSION"
 
-      - name: 🚀 Publish to NPM
-        if: steps.check-changes.outputs.should_publish == 'true'
-        run: npm publish --access public
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: 📤 Push version bump
-        if: steps.check-changes.outputs.should_publish == 'true'
-        run: |
-          git push origin HEAD:${{ github.ref_name }}
-          git push origin "v${{ steps.bump.outputs.new_version }}"
-
-      - name: 📝 Create GitHub Release
-        if: steps.check-changes.outputs.should_publish == 'true'
+      - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,34 +91,18 @@ jobs:
           tag_name: v${{ steps.bump.outputs.new_version }}
           release_name: Release v${{ steps.bump.outputs.new_version }}
           body: |
-            ## 🚀 Release v${{ steps.bump.outputs.new_version }}
-            
+            ## Release v${{ steps.bump.outputs.new_version }}
+
             ### Changes
             - Auto-published from PR merge
             - Previous version: v${{ steps.bump.outputs.old_version }}
-            
+
             ### Installation
             ```bash
             npx create-nextjs-aptos-dapp-template
             ```
-            
+
             ### What's Changed
             See the [commit history](https://github.com/${{ github.repository }}/compare/v${{ steps.bump.outputs.old_version }}...v${{ steps.bump.outputs.new_version }}) for details.
           draft: false
           prerelease: false
-
-      - name: 🎉 Display publish success
-        if: github.event.pull_request.number && steps.check-changes.outputs.should_publish == 'true'
-        run: |
-          echo "🎉 **Auto-published to NPM!**"
-          echo ""
-          echo "📦 **Package**: create-nextjs-aptos-dapp-template"
-          echo "🏷️ **Version**: v${{ steps.bump.outputs.new_version }}"
-          echo "📈 **Bump Type**: ${{ steps.version.outputs.version_type }}"
-          echo ""
-          echo "### 🚀 Try it now:"
-          echo "npx create-nextjs-aptos-dapp-template"
-          echo ""
-          echo "### 📋 Release Notes:"
-          echo "- GitHub Release: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.bump.outputs.new_version }}"
-          echo "- NPM Package: https://www.npmjs.com/package/create-nextjs-aptos-dapp-template"
