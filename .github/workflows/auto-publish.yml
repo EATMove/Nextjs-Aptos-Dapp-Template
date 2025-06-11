@@ -39,7 +39,7 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: 📦 Install dependencies
@@ -110,7 +110,9 @@ jobs:
 
       - name: 🚀 Publish to NPM
         if: steps.check-changes.outputs.should_publish == 'true'
-        run: npm publish --access public
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📤 Push version bump
         if: steps.check-changes.outputs.should_publish == 'true'
