@@ -39,7 +39,7 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: 📦 Install dependencies
@@ -51,7 +51,7 @@ jobs:
       - name: 🔍 Run publish checks
         run: npm run publish-check
 
-      - name: � Check if template files changed
+      - name: Check if template files changed
         id: check-changes
         run: |
           # Get list of changed files in the PR
