@@ -1,52 +1,19 @@
 {
-  "name": "create-nextjs-aptos-dapp-template",
-  "version": "1.2.3",
-  "description": "A generator for Next.js dApp projects supporting Aptos and Movement blockchains",
-  "main": "bin/generate.js",
-  "type": "module",
-  "bin": {
-    "create-nextjs-aptos-dapp-template": "./bin/generate.js"
+  "name": "@eatmove/test-npm-publish-workflow",
+  "version": "1.0.0",
+  "description": "Test package for NPM publish workflow",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
   },
-  "files": [
-    "template/**/*",
-    "!template/node_modules",
-    "!template/.next",
-    "!template/bun.lock",
-    "!template/package-lock.json",
-    "!template/.env",
-    "!template/.env.local",
-    "!template/dist",
-    "!template/build",
-    "bin/generate.js",
-    "README.md"
-  ],
+  "keywords": ["test", "npm", "github-actions"],
+  "author": "EATMove",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EATMove/Nextjs-Aptos-Dapp-Template"
+    "url": "git+https://github.com/EATMove/test-workflow.git"
   },
-  "scripts": {
-    "test": "node bin/generate.js --help || echo 'Generator script exists'",
-    "test-local": "node bin/generate.js",
-    "prepublish": "node scripts/publish-check.js",
-    "publish-check": "node scripts/publish-check.js"
-  },
-  "keywords": [
-    "nextjs",
-    "aptos",
-    "movement",
-    "dapp",
-    "template",
-    "blockchain",
-    "web3",
-    "move",
-    "smart-contracts",
-    "defi"
-  ],
-  "author": "DudeGuuud",
-  "license": "MIT",
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "fs-extra": "^10.1.0",
-    "inquirer": "^8.2.6"
+  "publishConfig": {
+    "access": "public"
   }
 }

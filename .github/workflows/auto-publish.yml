@@ -34,6 +34,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
 
       - name: Determine version bump
@@ -66,6 +67,12 @@ jobs:
 
           echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
 
-      - run: npm publish --provenance --access public
+      - name: Test npm authentication
+        run: npm whoami
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
