@@ -104,10 +104,6 @@ jobs:
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
 
-      - name: 🔑 Authenticate with npm
-        if: steps.check-changes.outputs.should_publish == 'true'
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
       - name: 🚀 Publish to NPM
         if: steps.check-changes.outputs.should_publish == 'true'
         run: npm publish --provenance --access public
