@@ -192,4 +192,3 @@ const configs = {
 ## 许可证
 
 MIT
-
