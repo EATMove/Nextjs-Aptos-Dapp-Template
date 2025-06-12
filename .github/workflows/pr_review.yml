@@ -1,0 +1,163 @@
+name: PR Review and TestingAdd commentMore actions
+
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test
+
+      - name: 🔍 Run publish checks
+        run: npm run publish-check
+
+      - name: 📋 Test package generation
+        run: |
+          # Test that the generator script exists and is executable
+          node bin/generate.js --help
+
+          # Test that the template directory exists and has required files
+          test -d template
+          test -f template/package.json
+          test -f template/README.md
+          test -f template/env.example
+
+          echo "✅ Package generation tests passed"
+
+  version-preview:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📈 Preview version bump
+        id: preview
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current local version: $CURRENT_VERSION"
+
+          # Get the latest published version from NPM
+          PUBLISHED_VERSION=$(npm view create-nextjs-aptos-dapp-template version 2>/dev/null || echo "0.0.0")
+          echo "Latest published version: $PUBLISHED_VERSION"
+
+          # Get PR title and body for version determination
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          # Determine version type based on PR title and body
+          if echo "$PR_TITLE $PR_BODY" | grep -i "breaking\|major"; then
+            VERSION_TYPE="major"
+          elif echo "$PR_TITLE $PR_BODY" | grep -i "feat\|feature\|minor"; then
+            VERSION_TYPE="minor"
+          else
+            VERSION_TYPE="patch"
+          fi
+
+          echo "Detected version bump type: $VERSION_TYPE"
+
+          # Calculate new version using npm version (dry run)
+          # Create a temporary package.json to test version bump
+          cp package.json package.json.backup
+          npm version $VERSION_TYPE --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+
+          # Check if the new version already exists on NPM
+          if npm view create-nextjs-aptos-dapp-template@$NEW_VERSION version >/dev/null 2>&1; then
+            echo "Version $NEW_VERSION already exists on NPM. Will bump to next patch version..."
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "New version after conflict resolution: $NEW_VERSION"
+          fi
+
+          # Restore original package.json
+          mv package.json.backup package.json
+
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 📋 Display version preview
+        run: |
+          echo "## 📦 Version Preview"
+          echo ""
+          echo "🏷️ **Current Local Version**: v${{ steps.preview.outputs.current_version }}"
+          echo "📦 **Published Version**: v${{ steps.preview.outputs.published_version }}"
+          echo "🚀 **Next Version**: v${{ steps.preview.outputs.new_version }}"
+          echo "📈 **Bump Type**: ${{ steps.preview.outputs.version_type }}"
+          echo ""
+          echo "### 🔍 What will happen when this PR is merged:"
+          echo "1. ✅ Tests will run"
+          echo "2. 📈 Version will be bumped to v${{ steps.preview.outputs.new_version }}"
+          echo "3. 📦 Package will be published to NPM"
+          echo ""
+          echo "### 🚀 Users will be able to use:"
+          echo "\`\`\`bash"
+          echo "npx create-nextjs-aptos-dapp-template@${{ steps.preview.outputs.new_version }}"
+          echo "\`\`\`"
+          echo ""
+          echo "### 📝 Version Bump Rules:"
+          echo "- **Major** (x.0.0): PR title/body contains 'breaking' or 'major'"
+          echo "- **Minor** (x.y.0): PR title/body contains 'feat', 'feature', or 'minor'"
+          echo "- **Patch** (x.y.z): All other cases (fixes, docs, etc.)"
+
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🛡️ Run security audit
+        run: npm audit --audit-level=moderate
+
+      - name: 🔍 Check for sensitive files
+        run: |
+          # Check if any sensitive files are accidentally included
+          if find . -name "*.env" -not -path "./template/*" | grep -q .; then
+            echo "❌ Found .env files in root directory"
+            exit 1
+          fi
+          
+          if find . -name "*.key" -o -name "*.pem" | grep -q .; then
+            echo "❌ Found potential private key files"
+            exit 1
+          fi
+          
+          echo "✅ No sensitive files found"
