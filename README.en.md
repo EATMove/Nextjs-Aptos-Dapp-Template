@@ -189,6 +189,7 @@ const configs = {
 - [Aptos Development Documentation](https://aptos.dev/build/sdks/ts-sdk)
 - [Move Language Guide](https://aptos.dev/build/smart-contracts)
 - [Next.js Documentation](https://nextjs.org/docs)
+- [Transaction Handling Method](./tutorial.md)
 
 ## License
 

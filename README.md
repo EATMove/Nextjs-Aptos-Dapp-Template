@@ -188,6 +188,7 @@ const configs = {
 - [Aptos 开发文档](https://aptos.dev/zh/build/sdks/ts-sdk)
 - [Move 语言指南](https://aptos.dev/zh/build/smart-contracts)
 - [Next.js 文档](https://nextjs.org/docs)
+- [交易处理方法](./tutorial.md)
 
 ## 许可证
 
