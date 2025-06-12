@@ -59,15 +59,31 @@ jobs:
           echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
           echo "Will bump $VERSION_TYPE version"
 
-      - name: Bump version
+      - name: Check and bump version
         id: bump
         run: |
           OLD_VERSION=$(node -p "require('./package.json').version")
+          echo "Current local version: $OLD_VERSION"
+
+          # Get the latest published version from NPM
+          PUBLISHED_VERSION=$(npm view create-nextjs-aptos-dapp-template version 2>/dev/null || echo "0.0.0")
+          echo "Latest published version: $PUBLISHED_VERSION"
+
+          # Bump version based on the determined type
           npm version ${{ steps.version.outputs.version_type }} --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
 
+          # Check if the new version already exists on NPM
+          if npm view create-nextjs-aptos-dapp-template@$NEW_VERSION version >/dev/null 2>&1; then
+            echo "Version $NEW_VERSION already exists on NPM. Bumping to next patch version..."
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "New version after conflict resolution: $NEW_VERSION"
+          fi
+
           echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
 
           echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
 
