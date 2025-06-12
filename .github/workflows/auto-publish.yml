@@ -1,7 +1,7 @@
 name: Auto Publish to NPM
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches: [main, master]
     paths:
@@ -43,10 +43,14 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION_TYPE="${{ github.event.inputs.version_type }}"
           else
-            # Auto-determine version type based on commit messages
-            if git log --oneline -1 | grep -i "breaking\|major"; then
+            # Get PR title and body for version determination
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+
+            # Auto-determine version type based on PR title and body
+            if echo "$PR_TITLE $PR_BODY" | grep -i "breaking\|major"; then
               VERSION_TYPE="major"
-            elif git log --oneline -1 | grep -i "feat\|feature\|minor"; then
+            elif echo "$PR_TITLE $PR_BODY" | grep -i "feat\|feature\|minor"; then
               VERSION_TYPE="minor"
             else
               VERSION_TYPE="patch"
@@ -66,11 +70,6 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
           echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
-
-      - name: Test npm authentication
-        run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to NPM
         run: npm publish --provenance --access public
