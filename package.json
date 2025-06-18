@@ -1,6 +1,6 @@
 {
   "name": "create-nextjs-aptos-dapp-template",
-  "version": "1.2.4",
+  "version": "1.2.7",
   "description": "A generator for Next.js dApp projects supporting Aptos and Movement blockchains",
   "main": "bin/generate.js",
   "type": "module",
