@@ -2,7 +2,7 @@ interface ContractAddresses {
     [key: string]: string;
 }
 
-type NetworkType = 'testnet' | 'mainnet' | 'devnet';
+type NetworkType = 'testnet' | 'mainnet' | 'devnet' | 'movement-testnet' | 'movement-mainnet';
 
 const configs = {
     devnet: {
@@ -12,6 +12,12 @@ const configs = {
         CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID || "0x1",
     },
     mainnet: {
+        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID || "0x1",
+    },
+    'movement-testnet': {
+        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID || "0x1",
+    },
+    'movement-mainnet': {
         CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID || "0x1",
     }
 } as const satisfies Record<NetworkType, ContractAddresses>;
