@@ -67,13 +67,20 @@ jobs:
 
           # Get the latest published version from NPM
           PUBLISHED_VERSION=$(npm view create-nextjs-aptos-dapp-template version 2>/dev/null || echo "0.0.0")
-          echo "Latest published version: $PUBLISHED_VERSION"
+          echo "Latest published version from NPM: $PUBLISHED_VERSION"
 
-          # Bump version based on the determined type
+          # Update local package.json to match the latest published version first
+          if [ "$PUBLISHED_VERSION" != "0.0.0" ]; then
+            echo "Updating local version to match published version: $PUBLISHED_VERSION"
+            npm version $PUBLISHED_VERSION --no-git-tag-version --allow-same-version
+          fi
+
+          # Now bump version based on the determined type from the latest published version
+          echo "Bumping ${{ steps.version.outputs.version_type }} version from published version: $PUBLISHED_VERSION"
           npm version ${{ steps.version.outputs.version_type }} --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
 
-          # Check if the new version already exists on NPM
+          # Double check if the new version already exists on NPM (safety check)
           if npm view create-nextjs-aptos-dapp-template@$NEW_VERSION version >/dev/null 2>&1; then
             echo "Version $NEW_VERSION already exists on NPM. Bumping to next patch version..."
             npm version patch --no-git-tag-version
@@ -85,7 +92,7 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
 
-          echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
+          echo "Version bumped from published version $PUBLISHED_VERSION to $NEW_VERSION"
 
       - name: Publish to NPM
         run: npm publish --provenance --access public
