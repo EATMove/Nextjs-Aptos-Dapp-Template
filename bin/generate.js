@@ -61,11 +61,11 @@ async function generateProject() {
       name: 'network',
       message: 'Which Aptos network do you want to use?',
       choices: [
-        { name: 'Devnet (Development)', value: 'devnet' },
         { name: 'Testnet (Testing)', value: 'testnet' },
+        { name: 'Devnet (Development)', value: 'devnet' },
         { name: 'Mainnet (Production)', value: 'mainnet' }
       ],
-      default: 'devnet'
+      default: 'testnet'
     }
   ];
 
@@ -126,8 +126,8 @@ NEXT_PUBLIC_APTOS_FAUCET_URL=${faucetUrl}
 # NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
 
 # Contract addresses (update these with your deployed contract addresses)
-NEXT_PUBLIC_DEVNET_PACKAGE_ID="0xc98f4f570fab235677c1b9324f88f9268c1641f614e0095987f5b6ce0487c3ee"
-NEXT_PUBLIC_TESTNET_PACKAGE_ID=""
+NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
+NEXT_PUBLIC_TESTNET_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
 `;
     await fs.writeFile(envPath, envContent);
