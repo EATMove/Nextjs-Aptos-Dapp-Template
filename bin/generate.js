@@ -97,35 +97,19 @@ async function generateProject() {
     console.log(chalk.yellow('🔧 Creating .env file...'));
     const envPath = path.join(targetDir, '.env');
 
-    // Configure network URLs based on selection
-    let nodeUrl, faucetUrl;
-    switch (answers.network) {
-      case 'mainnet':
-        nodeUrl = 'https://fullnode.mainnet.aptoslabs.com/v1';
-        faucetUrl = '';
-        break;
-      case 'testnet':
-        nodeUrl = 'https://fullnode.testnet.aptoslabs.com/v1';
-        faucetUrl = 'https://faucet.testnet.aptoslabs.com';
-        break;
-      case 'devnet':
-      default:
-        nodeUrl = 'https://fullnode.devnet.aptoslabs.com/v1';
-        faucetUrl = 'https://faucet.devnet.aptoslabs.com';
-        break;
-    }
 
-    const envContent = `# Aptos Network Configuration
-NEXT_PUBLIC_NETWORK=${answers.network}
-NEXT_PUBLIC_APTOS_NODE_URL=${nodeUrl}
-NEXT_PUBLIC_APTOS_FAUCET_URL=${faucetUrl}
+    const envContent = `# 标准 Aptos 测试网配置, 当你连接到aptos网络，一般不需要指定节点地址，除非你有指定的节点
+NEXT_PUBLIC_NETWORK=testnet
 
-# Movement Network Configuration (devnet/testnet/mainnet)
-# NEXT_PUBLIC_NETWORK=testnet
-# NEXT_PUBLIC_APTOS_NODE_URL=https://aptos.testnet.porto.movementlabs.xyz/v1
-# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
+# 其他 Aptos 网络选项
+# NEXT_PUBLIC_NETWORK=devnet / mainnet
 
-# Contract addresses (update these with your deployed contract addresses)
+# Movement 网络配置 (推荐用于 Movement 生态，需要指定节点地址)
+# NEXT_PUBLIC_NETWORK=movement-testnet
+# NEXT_PUBLIC_APTOS_NODE_URL=https://full.testnet.movementinfra.xyz/v1
+# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.movementinfra.xyz/
+
+# 在 Movement/Aptos 中，Package ID 就是部署合约的账户地址
 NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
 NEXT_PUBLIC_TESTNET_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
