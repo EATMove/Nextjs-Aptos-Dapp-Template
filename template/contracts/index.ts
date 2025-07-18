@@ -4,6 +4,15 @@ import { getContractConfig, NetworkType, ContractAddresses } from "./config";
 // 当前网络
 const currentNetwork = (process.env.NEXT_PUBLIC_NETWORK as NetworkType) || "devnet";
 
+// 网络映射配置
+const NETWORK_MAPPING: Record<NetworkType, Network> = {
+    devnet: Network.DEVNET,
+    testnet: Network.TESTNET,
+    mainnet: Network.MAINNET,
+    'movement-testnet': Network.TESTNET,
+    'movement-mainnet': Network.MAINNET,
+};
+
 // 创建自定义的 Aptos 配置，支持 Movement 网络
 function createAptosConfig(): AptosConfig {
     const nodeUrl = process.env.NEXT_PUBLIC_APTOS_NODE_URL;
@@ -12,20 +21,13 @@ function createAptosConfig(): AptosConfig {
     // 如果提供了自定义的节点 URL（如 Movement），则使用自定义配置
     if (nodeUrl) {
         return new AptosConfig({
+            network: NETWORK_MAPPING[currentNetwork], // 必须指定网络
             fullnode: nodeUrl,
             faucet: faucetUrl,
         });
     }
 
     // 否则使用官方 Aptos 网络
-    const NETWORK_MAPPING: Record<NetworkType, Network> = {
-        devnet: Network.DEVNET,
-        testnet: Network.TESTNET,
-        mainnet: Network.MAINNET,
-        'movement-testnet': Network.TESTNET,
-        'movement-mainnet': Network.MAINNET,
-    };
-
     return new AptosConfig({
         network: NETWORK_MAPPING[currentNetwork],
     });
