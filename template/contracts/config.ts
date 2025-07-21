@@ -6,19 +6,19 @@ type NetworkType = 'testnet' | 'mainnet' | 'devnet' | 'movement-testnet' | 'move
 
 const configs = {
     devnet: {
-        CounterModule: process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID || "0x1",
+        CounterModule: process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID!,
     },
     testnet: {
-        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID || "0x1",
+        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID!,
     },
     mainnet: {
-        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID || "0x1",
+        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID!,
     },
     'movement-testnet': {
-        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID || "0x1",
+        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID!,
     },
     'movement-mainnet': {
-        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID || "0x1",
+        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID!,
     }
 } as const satisfies Record<NetworkType, ContractAddresses>;
 

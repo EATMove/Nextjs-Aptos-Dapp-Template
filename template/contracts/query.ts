@@ -8,8 +8,8 @@ export async function getCounterValue(accountAddress: string): Promise<number | 
         const networkVariables = getNetworkVariables()
         const moduleAddress = networkVariables.CounterModule
 
-        // 如果合约地址是默认的 0x1 或者为空，说明还没有部署合约
-        if (moduleAddress === "0x1" || !moduleAddress || moduleAddress.trim() === "") {
+        // 如果合约地址为空，说明还没有部署合约
+        if (!moduleAddress || moduleAddress.trim() === "") {
             console.warn('Counter contract not deployed yet. Please deploy the contract first.')
             return null
         }
@@ -36,8 +36,8 @@ export async function isCounterInitialized(accountAddress: string): Promise<bool
         const networkVariables = getNetworkVariables()
         const moduleAddress = networkVariables.CounterModule
 
-        // 如果合约地址是默认的 0x1 或者为空，说明还没有部署合约
-        if (moduleAddress === "0x1" || !moduleAddress || moduleAddress.trim() === "") {
+        // 如果合约地址为空，说明还没有部署合约
+        if (!moduleAddress || moduleAddress.trim() === "") {
             console.warn('Counter contract not deployed yet. Please deploy the contract first.')
             return false
         }
@@ -112,7 +112,6 @@ export function debugContractConfig() {
     console.log('Counter Module Address:', networkVariables.CounterModule)
 
     const isValidAddress = networkVariables.CounterModule &&
-                          networkVariables.CounterModule !== "0x1" &&
                           networkVariables.CounterModule.trim() !== ""
 
     console.log('Is Valid Contract Address:', isValidAddress)

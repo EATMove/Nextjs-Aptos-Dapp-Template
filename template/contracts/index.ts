@@ -2,7 +2,7 @@ import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 import { getContractConfig, NetworkType, ContractAddresses } from "./config";
 
 // 当前网络
-const currentNetwork = (process.env.NEXT_PUBLIC_NETWORK as NetworkType) || "devnet";
+const currentNetwork = (process.env.NEXT_PUBLIC_NETWORK as NetworkType) || "testnet";
 
 // 网络映射配置
 const NETWORK_MAPPING: Record<NetworkType, Network> = {
