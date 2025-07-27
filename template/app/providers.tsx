@@ -39,7 +39,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         autoConnect={true}
         optInWallets={["Petra"]}
         dappConfig={dappConfig}
-        onError={(error: any) => {
+        onError={(error: Error) => {
           console.error("Wallet connection error:", error);
         }}
       >

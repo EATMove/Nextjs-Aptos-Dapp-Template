@@ -2,6 +2,7 @@
 
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
 import { truncateAddress } from '@/utils'
+import Image from 'next/image'
 
 export function WalletSelector() {
   const { account, connected, disconnect, wallets, connect } = useWallet()
@@ -32,7 +33,7 @@ export function WalletSelector() {
             className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             {wallet.icon && (
-              <img src={wallet.icon} alt={wallet.name} className="w-5 h-5" />
+              <Image src={wallet.icon} alt={wallet.name} width={20} height={20} className="w-5 h-5" />
             )}
             <span>Connect {wallet.name}</span>
           </button>

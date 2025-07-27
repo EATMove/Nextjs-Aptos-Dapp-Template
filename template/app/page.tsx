@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useWallet } from '@aptos-labs/wallet-adapter-react'
 import { WalletSelector } from '@/components/WalletSelector'
 import {
@@ -46,7 +46,7 @@ export default function Home() {
     useBetterSignAndExecuteTransaction({ tx: buildResetCounterTx })
 
   // 获取用户资料
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     if (!account?.address) return
 
     setIsRefreshing(true)
@@ -92,7 +92,7 @@ export default function Home() {
     } finally {
       setIsRefreshing(false)
     }
-  }
+  }, [account?.address])
 
   useEffect(() => {
     if (connected && account) {
@@ -100,7 +100,7 @@ export default function Home() {
     } else {
       setUserProfile(null)
     }
-  }, [connected, account])
+  }, [connected, account, fetchUserProfile])
 
   // 交易成功后刷新数据
   const onTransactionSuccess = () => {
