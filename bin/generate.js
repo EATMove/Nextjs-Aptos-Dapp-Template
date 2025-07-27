@@ -111,6 +111,10 @@ NEXT_PUBLIC_NETWORK=testnet
 # NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
 # NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
 
+# 自定义 API 配置 (可选 - 用于需要认证的 API 服务)
+# NEXT_PUBLIC_WITH_CREDENTIALS=true
+# NEXT_PUBLIC_API_KEY=your_api_key_here
+
 # 合约地址配置 - 当前网络的合约部署地址
 NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 `;

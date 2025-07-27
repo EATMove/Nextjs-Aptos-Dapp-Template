@@ -47,9 +47,22 @@ NEXT_PUBLIC_NETWORK=testnet
 # NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
 # NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
 
+# 自定义 API 配置 (可选 - 用于需要认证的 API 服务)
+# NEXT_PUBLIC_WITH_CREDENTIALS=true
+# NEXT_PUBLIC_API_KEY=your_api_key_here
+
 # 合约地址配置 - 当前网络的合约部署地址
 NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 ```
+
+#### 环境变量说明
+
+- **NEXT_PUBLIC_NETWORK**: 选择要连接的网络
+- **NEXT_PUBLIC_NODE_URL**: 自定义节点 URL（Movement 网络必需）
+- **NEXT_PUBLIC_FAUCET_URL**: 自定义水龙头 URL（Movement 网络必需）
+- **NEXT_PUBLIC_WITH_CREDENTIALS**: 是否启用 API 凭据认证（true/false）
+- **NEXT_PUBLIC_API_KEY**: API 密钥（用于需要认证的服务）
+- **NEXT_PUBLIC_PACKAGE_ID**: 合约部署地址
 
 ### 3. 编译和部署 Move 合约
 

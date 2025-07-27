@@ -52,6 +52,10 @@ NEXT_PUBLIC_NETWORK=testnet
 # NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
 # NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
 
+# Custom API configuration (optional - for authenticated API services)
+# NEXT_PUBLIC_WITH_CREDENTIALS=true
+# NEXT_PUBLIC_API_KEY=your_api_key_here
+
 # Contract address configuration - current network contract deployment address
 NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 ```
