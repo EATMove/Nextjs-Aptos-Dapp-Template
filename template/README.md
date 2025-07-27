@@ -34,20 +34,21 @@ npm install
 项目已经为您创建了 `.env` 文件，您可以根据需要进行调整：
 
 ```env
-# 网络配置 (devnet/testnet/mainnet)
-NEXT_PUBLIC_NETWORK=devnet
-NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.devnet.aptoslabs.com/v1
-NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.devnet.aptoslabs.com
+# 网络配置 - 支持 Aptos 和 Movement 网络
+NEXT_PUBLIC_NETWORK=testnet
 
-# Movement 网络配置 (devnet/testnet/mainnet)
-# NEXT_PUBLIC_NETWORK=testnet
-# NEXT_PUBLIC_APTOS_NODE_URL=https://aptos.testnet.porto.movementlabs.xyz/v1
-# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
+# 其他网络选项:
+# NEXT_PUBLIC_NETWORK=devnet
+# NEXT_PUBLIC_NETWORK=mainnet
+# NEXT_PUBLIC_NETWORK=movement-testnet
+# NEXT_PUBLIC_NETWORK=movement-mainnet
 
-# 合约地址 (部署后填入)
-NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
-NEXT_PUBLIC_TESTNET_PACKAGE_ID=""
-NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
+# 自定义节点配置 (可选 - 用于 Movement 网络或自定义 Aptos 节点)
+# NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
+# NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
+
+# 合约地址配置 - 当前网络的合约部署地址
+NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 ```
 
 ### 3. 编译和部署 Move 合约
@@ -148,13 +149,19 @@ const counterValue = await getCounterValue(accountAddress)
 ```tsx
 const configs = {
     devnet: {
-        CounterModule: process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     },
     testnet: {
-        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     },
     mainnet: {
-        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
+    },
+    'movement-testnet': {
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
+    },
+    'movement-mainnet': {
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     }
 }
 ```

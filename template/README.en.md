@@ -34,20 +34,21 @@ npm install
 The project has already created a `.env` file for you, which you can adjust as needed:
 
 ```env
-# Network configuration (devnet/testnet/mainnet)
-NEXT_PUBLIC_NETWORK=devnet
-NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.devnet.aptoslabs.com/v1
-NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.devnet.aptoslabs.com
+# Network configuration - supports Aptos and Movement networks
+NEXT_PUBLIC_NETWORK=testnet
 
-# Movement network configuration (devnet/testnet/mainnet)
-# NEXT_PUBLIC_NETWORK=testnet
-# NEXT_PUBLIC_APTOS_NODE_URL=https://aptos.testnet.porto.movementlabs.xyz/v1
-# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.porto.movementlabs.xyz
+# Other network options:
+# NEXT_PUBLIC_NETWORK=devnet
+# NEXT_PUBLIC_NETWORK=mainnet
+# NEXT_PUBLIC_NETWORK=movement-testnet
+# NEXT_PUBLIC_NETWORK=movement-mainnet
 
-# Contract addresses (fill in after deployment)
-NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
-NEXT_PUBLIC_TESTNET_PACKAGE_ID=""
-NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
+# Custom node configuration (optional - for Movement networks or custom Aptos nodes)
+# NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
+# NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
+
+# Contract address configuration - current network contract deployment address
+NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 ```
 
 ### 3. Compile and Deploy Move Contracts
@@ -148,13 +149,19 @@ All contract addresses and network configurations are centrally managed in `cont
 ```tsx
 const configs = {
     devnet: {
-        CounterModule: process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     },
     testnet: {
-        CounterModule: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     },
     mainnet: {
-        CounterModule: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID,
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
+    },
+    'movement-testnet': {
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
+    },
+    'movement-mainnet': {
+        CounterModule: process.env.NEXT_PUBLIC_PACKAGE_ID,
     }
 }
 ```

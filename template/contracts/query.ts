@@ -105,9 +105,7 @@ export function debugContractConfig() {
     console.log('🔍 Contract Configuration Debug:')
     console.log('Current Network:', currentNet)
     console.log('Environment Variables:')
-    console.log('  NEXT_PUBLIC_DEVNET_PACKAGE_ID:', process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID)
-    console.log('  NEXT_PUBLIC_TESTNET_PACKAGE_ID:', process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID)
-    console.log('  NEXT_PUBLIC_MAINNET_PACKAGE_ID:', process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID)
+    console.log('  NEXT_PUBLIC_PACKAGE_ID:', process.env.NEXT_PUBLIC_PACKAGE_ID)
     console.log('Network Variables:', networkVariables)
     console.log('Counter Module Address:', networkVariables.CounterModule)
 
@@ -119,7 +117,7 @@ export function debugContractConfig() {
     if (!isValidAddress) {
         console.warn('⚠️  Contract not configured! Please update your .env file with the correct contract address.')
         console.log('💡 Example:')
-        console.log(`   NEXT_PUBLIC_${currentNet.toUpperCase()}_PACKAGE_ID="0xYOUR_CONTRACT_ADDRESS_HERE"`)
+        console.log(`   NEXT_PUBLIC_PACKAGE_ID="0xYOUR_CONTRACT_ADDRESS_HERE"`)
     }
 
     return {

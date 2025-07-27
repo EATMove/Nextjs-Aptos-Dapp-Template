@@ -98,21 +98,21 @@ async function generateProject() {
     const envPath = path.join(targetDir, '.env');
 
 
-    const envContent = `# 标准 Aptos 测试网配置, 当你连接到aptos网络，一般不需要指定节点地址，除非你有指定的节点
+    const envContent = `# 网络配置 - 支持 Aptos 和 Movement 网络
 NEXT_PUBLIC_NETWORK=testnet
 
-# 其他 Aptos 网络选项
-# NEXT_PUBLIC_NETWORK=devnet / mainnet
-
-# Movement 网络配置 (推荐用于 Movement 生态，需要指定节点地址)
+# 其他网络选项:
+# NEXT_PUBLIC_NETWORK=devnet
+# NEXT_PUBLIC_NETWORK=mainnet
 # NEXT_PUBLIC_NETWORK=movement-testnet
-# NEXT_PUBLIC_APTOS_NODE_URL=https://full.testnet.movementinfra.xyz/v1
-# NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.movementinfra.xyz/
+# NEXT_PUBLIC_NETWORK=movement-mainnet
 
-# 在 Movement/Aptos 中，Package ID 就是部署合约的账户地址
-NEXT_PUBLIC_DEVNET_PACKAGE_ID=""
-NEXT_PUBLIC_TESTNET_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
-NEXT_PUBLIC_MAINNET_PACKAGE_ID=""
+# 自定义节点配置 (可选 - 用于 Movement 网络或自定义 Aptos 节点)
+# NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
+# NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
+
+# 合约地址配置 - 当前网络的合约部署地址
+NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 `;
     await fs.writeFile(envPath, envContent);
     console.log(chalk.green('✅ Created .env file'));

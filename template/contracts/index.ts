@@ -9,14 +9,14 @@ const NETWORK_MAPPING: Record<NetworkType, Network> = {
     devnet: Network.DEVNET,
     testnet: Network.TESTNET,
     mainnet: Network.MAINNET,
-    'movement-testnet': Network.TESTNET,
-    'movement-mainnet': Network.MAINNET,
+    'movement-testnet': Network.CUSTOM,
+    'movement-mainnet': Network.CUSTOM,
 };
 
 // 创建自定义的 Aptos 配置，支持 Movement 网络
 function createAptosConfig(): AptosConfig {
-    const nodeUrl = process.env.NEXT_PUBLIC_APTOS_NODE_URL;
-    const faucetUrl = process.env.NEXT_PUBLIC_APTOS_FAUCET_URL;
+    const nodeUrl = process.env.NEXT_PUBLIC_NODE_URL;
+    const faucetUrl = process.env.NEXT_PUBLIC_FAUCET_URL;
 
     // 如果提供了自定义的节点 URL（如 Movement），则使用自定义配置
     if (nodeUrl) {

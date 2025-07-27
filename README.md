@@ -38,10 +38,21 @@ npm install
 请注意`.env` 文件，可以根据需要进行调整：
 
 ```env
-# 网络配置 (devnet/testnet/mainnet)
-NEXT_PUBLIC_NETWORK=devnet
-NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.devnet.aptoslabs.com/v1
-NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.devnet.aptoslabs.com
+# 网络配置 - 支持 Aptos 和 Movement 网络
+NEXT_PUBLIC_NETWORK=testnet
+
+# 其他网络选项:
+# NEXT_PUBLIC_NETWORK=devnet
+# NEXT_PUBLIC_NETWORK=mainnet
+# NEXT_PUBLIC_NETWORK=movement-testnet
+# NEXT_PUBLIC_NETWORK=movement-mainnet
+
+# 自定义节点配置 (可选 - 用于 Movement 网络或自定义 Aptos 节点)
+# NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
+# NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
+
+# 合约地址配置 - 当前网络的合约部署地址
+NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f571c2459789"
 
 # Movement 网络配置 (devnet/testnet/mainnet)
 # NEXT_PUBLIC_NETWORK=testnet
@@ -185,10 +196,10 @@ const configs = {
 
 ## 相关资源
 
+- [交易处理方法](./tutorial.md)
 - [Aptos 开发文档](https://aptos.dev/zh/build/sdks/ts-sdk)
 - [Move 语言指南](https://aptos.dev/zh/build/smart-contracts)
 - [Next.js 文档](https://nextjs.org/docs)
-- [交易处理方法](./tutorial.md)
 
 ## 许可证
 

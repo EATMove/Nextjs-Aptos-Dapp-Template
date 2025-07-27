@@ -230,7 +230,7 @@ export default function Home() {
                     <p className="font-semibold">解决步骤:</p>
                     <ol className="list-decimal list-inside mt-1 space-y-1">
                       <li>部署合约: <code className="bg-red-200 px-1 rounded">cd contracts/counter && aptos move publish</code></li>
-                      <li>复制合约地址到 .env 文件中的 <code className="bg-red-200 px-1 rounded">NEXT_PUBLIC_{process.env.NEXT_PUBLIC_NETWORK?.toUpperCase() || 'DEVNET'}_PACKAGE_ID</code></li>
+                      <li>复制合约地址到 .env 文件中的 <code className="bg-red-200 px-1 rounded">NEXT_PUBLIC_PACKAGE_ID</code></li>
                       <li>重启开发服务器: <code className="bg-red-200 px-1 rounded">npm run dev</code></li>
                     </ol>
                   </div>
