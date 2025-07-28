@@ -47,8 +47,8 @@ NEXT_PUBLIC_NETWORK=testnet
 # NEXT_PUBLIC_NODE_URL=https://testnet.bardock.movementnetwork.xyz/v1
 # NEXT_PUBLIC_FAUCET_URL=https://faucet.testnet.bardock.movementnetwork.xyz/
 
-# Custom API configuration (optional - for authenticated API services)
-# NEXT_PUBLIC_WITH_CREDENTIALS=true
+# API configuration (optional - for high-volume queries, increases request limits)
+# If not set, will use default free limits
 # NEXT_PUBLIC_API_KEY=your_api_key_here
 
 # Contract address configuration - current network contract deployment address
@@ -60,8 +60,7 @@ NEXT_PUBLIC_PACKAGE_ID="0xee653ff802641e554a547e5e0a460dcddd6dfbc603edcb364750f5
 - **NEXT_PUBLIC_NETWORK**: Select the network to connect to
 - **NEXT_PUBLIC_NODE_URL**: Custom node URL (required for Movement networks)
 - **NEXT_PUBLIC_FAUCET_URL**: Custom faucet URL (required for Movement networks)
-- **NEXT_PUBLIC_WITH_CREDENTIALS**: Enable API credential authentication (true/false)
-- **NEXT_PUBLIC_API_KEY**: API key (for services requiring authentication)
+- **NEXT_PUBLIC_API_KEY**: API key (optional, for increasing request limits, supports high-volume queries. Uses free limits if not set)
 - **NEXT_PUBLIC_PACKAGE_ID**: Contract deployment address
 
 ### 3. Compile and Deploy Move Contracts
