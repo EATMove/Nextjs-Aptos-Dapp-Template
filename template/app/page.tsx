@@ -32,18 +32,43 @@ export default function Home() {
   const isContractDeployed = networkVariables.CounterModule &&
                             networkVariables.CounterModule.trim() !== ""
 
-  // 交易处理 hooks
-  const { handleSignAndExecuteTransaction: handleInitialize, isLoading: isInitializing } = 
-    useBetterSignAndExecuteTransaction({ tx: buildInitializeCounterTx })
-  
-  const { handleSignAndExecuteTransaction: handleIncrement, isLoading: isIncrementing } = 
-    useBetterSignAndExecuteTransaction({ tx: buildIncrementCounterTx })
-  
-  const { handleSignAndExecuteTransaction: handleDecrement, isLoading: isDecrementing } = 
-    useBetterSignAndExecuteTransaction({ tx: buildDecrementCounterTx })
-  
-  const { handleSignAndExecuteTransaction: handleReset, isLoading: isResetting } = 
-    useBetterSignAndExecuteTransaction({ tx: buildResetCounterTx })
+  // 交易处理 hooks - 使用新的完整状态管理
+  const initializeHook = useBetterSignAndExecuteTransaction({ tx: buildInitializeCounterTx })
+  const incrementHook = useBetterSignAndExecuteTransaction({ tx: buildIncrementCounterTx })
+  const decrementHook = useBetterSignAndExecuteTransaction({ tx: buildDecrementCounterTx })
+  const resetHook = useBetterSignAndExecuteTransaction({ tx: buildResetCounterTx })
+
+  // 监听钱包连接状态变化，清除交易状态
+  useEffect(() => {
+    if (connected && account?.address) {
+      // 钱包重新连接时，清除所有交易状态
+      initializeHook.clearTransactionState()
+      incrementHook.clearTransactionState()
+      decrementHook.clearTransactionState()
+      resetHook.clearTransactionState()
+    }
+  }, [connected, account?.address])
+
+  // 自动清除成功状态（3秒后）
+  useEffect(() => {
+    if (initializeHook.lastSuccess) {
+      const timer = setTimeout(() => {
+        initializeHook.clearTransactionState()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [initializeHook.lastSuccess])
+
+  useEffect(() => {
+    if (incrementHook.lastSuccess || decrementHook.lastSuccess || resetHook.lastSuccess) {
+      const timer = setTimeout(() => {
+        incrementHook.clearTransactionState()
+        decrementHook.clearTransactionState()
+        resetHook.clearTransactionState()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [incrementHook.lastSuccess, decrementHook.lastSuccess, resetHook.lastSuccess])
 
   // 获取用户资料
   const fetchUserProfile = useCallback(async () => {
@@ -108,28 +133,40 @@ export default function Home() {
   }
 
   const executeInitialize = () => {
-    handleInitialize({})
+    // 开始新交易前清除之前的状态
+    initializeHook.clearTransactionState()
+
+    initializeHook.handleSignAndExecuteTransaction({})
       .onSuccess(onTransactionSuccess)
       .onError((error) => console.error('Initialize failed:', error))
       .execute()
   }
 
   const executeIncrement = () => {
-    handleIncrement({})
+    // 开始新交易前清除之前的状态
+    incrementHook.clearTransactionState()
+
+    incrementHook.handleSignAndExecuteTransaction({})
       .onSuccess(onTransactionSuccess)
       .onError((error) => console.error('Increment failed:', error))
       .execute()
   }
 
   const executeDecrement = () => {
-    handleDecrement({})
+    // 开始新交易前清除之前的状态
+    decrementHook.clearTransactionState()
+
+    decrementHook.handleSignAndExecuteTransaction({})
       .onSuccess(onTransactionSuccess)
       .onError((error) => console.error('Decrement failed:', error))
       .execute()
   }
 
   const executeReset = () => {
-    handleReset({})
+    // 开始新交易前清除之前的状态
+    resetHook.clearTransactionState()
+
+    resetHook.handleSignAndExecuteTransaction({})
       .onSuccess(onTransactionSuccess)
       .onError((error) => console.error('Reset failed:', error))
       .execute()
@@ -240,12 +277,33 @@ export default function Home() {
               {!userProfile.counterData ? (
                 <div className="text-center">
                   <p className="text-gray-600 mb-4">Counter not initialized</p>
+
+                  {/* 显示初始化错误 */}
+                  {initializeHook.lastError && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                      <p className="text-sm">Initialize failed: {initializeHook.lastError.message}</p>
+                      <button
+                        onClick={() => initializeHook.clearTransactionState()}
+                        className="text-xs underline mt-1"
+                      >
+                        Clear Error
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 显示初始化成功 */}
+                  {initializeHook.lastSuccess && (
+                    <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                      <p className="text-sm">Counter initialized successfully!</p>
+                    </div>
+                  )}
+
                   <button
                     onClick={executeInitialize}
-                    disabled={isInitializing}
+                    disabled={initializeHook.isLoading}
                     className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
                   >
-                    {isInitializing ? 'Initializing...' : 'Initialize Counter'}
+                    {initializeHook.isLoading ? 'Initializing...' : 'Initialize Counter'}
                   </button>
                 </div>
               ) : (
@@ -253,30 +311,60 @@ export default function Home() {
                   <div className="text-6xl font-bold text-blue-600 mb-6">
                     {userProfile.counterData.value}
                   </div>
-                  
+
+                  {/* 显示交易错误 */}
+                  {(incrementHook.lastError || decrementHook.lastError || resetHook.lastError) && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                      <p className="text-sm">
+                        Transaction failed: {
+                          incrementHook.lastError?.message ||
+                          decrementHook.lastError?.message ||
+                          resetHook.lastError?.message
+                        }
+                      </p>
+                      <button
+                        onClick={() => {
+                          incrementHook.clearTransactionState()
+                          decrementHook.clearTransactionState()
+                          resetHook.clearTransactionState()
+                        }}
+                        className="text-xs underline mt-1"
+                      >
+                        Clear Error
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 显示交易成功 */}
+                  {(incrementHook.lastSuccess || decrementHook.lastSuccess || resetHook.lastSuccess) && (
+                    <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                      <p className="text-sm">Transaction completed successfully!</p>
+                    </div>
+                  )}
+
                   <div className="flex justify-center space-x-4">
                     <button
                       onClick={executeDecrement}
-                      disabled={isDecrementing}
+                      disabled={decrementHook.isLoading}
                       className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
                     >
-                      {isDecrementing ? 'Processing...' : '- Decrement'}
+                      {decrementHook.isLoading ? 'Processing...' : '- Decrement'}
                     </button>
-                    
+
                     <button
                       onClick={executeIncrement}
-                      disabled={isIncrementing}
+                      disabled={incrementHook.isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
                     >
-                      {isIncrementing ? 'Processing...' : '+ Increment'}
+                      {incrementHook.isLoading ? 'Processing...' : '+ Increment'}
                     </button>
-                    
+
                     <button
                       onClick={executeReset}
-                      disabled={isResetting}
+                      disabled={resetHook.isLoading}
                       className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
                     >
-                      {isResetting ? 'Processing...' : 'Reset'}
+                      {resetHook.isLoading ? 'Processing...' : 'Reset'}
                     </button>
                   </div>
                 </div>
