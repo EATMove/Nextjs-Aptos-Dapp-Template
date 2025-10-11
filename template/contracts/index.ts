@@ -34,8 +34,8 @@ function getAptosConfig(): AptosConfig {
         case "movement-testnet":
             return new AptosConfig({
                 network: Network.CUSTOM,
-                fullnode: process.env.NEXT_PUBLIC_NODE_URL || "https://testnet.bardock.movementnetwork.xyz/v1",
-                faucet: process.env.NEXT_PUBLIC_FAUCET_URL || "https://faucet.testnet.bardock.movementnetwork.xyz/",
+                fullnode: process.env.NEXT_PUBLIC_NODE_URL || "https://testnet.movementnetwork.xyz/v1",
+                faucet: process.env.NEXT_PUBLIC_FAUCET_URL || "https://faucet.testnet.movementnetwork.xyz/",
                 ...(hasClientConfig && { clientConfig })
             });
         case "movement-mainnet":
